@@ -22,8 +22,8 @@
   let highlightLayer = L.layerGroup()
 
   onMount(() => {
-    map = L.map(mapContainer, { zoomControl: true, attributionControl: false }).setView([47.6, -122.2], 10)
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxAge: 60000 }).addTo(map)
+    map = L.map(mapContainer, { zoomControl: true, attributionControl: false, maxZoom: 21 }).setView([47.6, -122.2], 10)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxAge: 60000, maxNativeZoom: 19 }).addTo(map)
     vehicleLayer.addTo(map)
     routeLayer.addTo(map)
     highlightLayer.addTo(map)
