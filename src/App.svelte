@@ -142,7 +142,7 @@
 
   <div id="map-wrap" class:shown={showMap}>
     {#if routeId && selectedDir >= 0}
-      <RouteMap {stops} {vehicles} routeColor={color} {polylines} stopId={selectedStop?.id ?? null} onStopClick={handleStopClick} />
+      <RouteMap {stops} {vehicles} routeColor={color} {polylines} stopId={selectedStop?.id ?? null} show={showMap} onStopClick={handleStopClick} />
     {:else}
       <div class="map-placeholder">
         <div class="empty-icon">🚍</div>

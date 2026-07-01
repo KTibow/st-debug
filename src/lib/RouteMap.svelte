@@ -11,6 +11,7 @@
     routeColor = '#677483',
     polylines = [] as string[],
     stopId = null as string | null,
+    show = true,
     onStopClick = (_id: string) => {},
   } = $props()
 
@@ -29,6 +30,14 @@
   })
 
   onDestroy(() => { map?.remove() })
+
+  // Invalidate size when map transitions hidden→visible (e.g. mobile toggle)
+  $effect(() => {
+    if (show && map) {
+      // Use requestAnimationFrame so the browser has laid out the container first
+      requestAnimationFrame(() => { map.invalidateSize() })
+    }
+  })
 
   // Route shape: stops + polylines
   $effect(() => {
@@ -63,9 +72,13 @@
       if (!pos || !pos.lat || !pos.lon) continue
       const moving = v.status === 'IN_TRANSIT_TO' || v.tripStatus?.phase === 'in_transit_to'
       const stopped = v.status === 'STOPPED_AT' || v.tripStatus?.phase === 'stopped_at'
-      L.circleMarker([pos.lat, pos.lon], {
-        radius: 6, fillColor: moving ? '#2e7d32' : stopped ? '#d32f2f' : '#bbb',
-        color: '#fff', weight: 1.5, fillOpacity: 0.85
+      L.marker([pos.lat, pos.lon], {
+        icon: L.divIcon({
+          className: 'bus-marker',
+          html: `<div class="bus-icon ${moving ? 'moving' : stopped ? 'stopped' : ''}">🚍</div>`,
+          iconSize: [32, 32],
+          iconAnchor: [16, 16],
+        })
       }).addTo(vehicleLayer).bindPopup(
         `<b>Bus #${v.vehicleId.slice(-4)}</b><br/>${v.status || '—'}`
       )
@@ -87,3 +100,29 @@
 </script>
 
 <div bind:this={mapContainer} style="width:100%;height:100%"></div>
+
+<style>
+  :global(.bus-marker) {
+    background: none !important;
+    border: none !important;
+  }
+  :global(.bus-icon) {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    border: 2.5px solid #888;
+    transition: border-color 0.2s;
+  }
+  :global(.bus-icon.moving) {
+    border-color: #2e7d32;
+  }
+  :global(.bus-icon.stopped) {
+    border-color: #d32f2f;
+  }
+</style>
